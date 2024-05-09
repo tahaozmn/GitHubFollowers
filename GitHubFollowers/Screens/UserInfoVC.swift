@@ -10,19 +10,31 @@ import SnapKit
 
 class UserInfoVC: UIViewController {
     
-    let headerView = UIView()
+    let headerView          = UIView()
+    let itemViewOne         = UIView()
+    let itemViewTwo         = UIView()
+    var itemViews: [UIView] = []
     
     var username: String!
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureViewController()
+        layoutUI()
+        getUserInfo()
+    }
+    
+    
+    func configureViewController() {
         view.backgroundColor = .systemBackground
         let doneButton = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(dismissVC))
         navigationItem.rightBarButtonItem = doneButton
-        
-        layoutUI()
-        
+    }
+    
+    
+    func getUserInfo() {
         NetworkManager.shared.getUserInfo(for: username) { [weak self] result in
             guard let self = self else { return }
             
@@ -39,8 +51,18 @@ class UserInfoVC: UIViewController {
     
     
     func layoutUI() {
-        view.addSubview(headerView)
-        headerView.translatesAutoresizingMaskIntoConstraints = false
+        itemViews = [headerView, itemViewOne, itemViewTwo]
+        
+        for itemView in itemViews {
+            view.addSubview(itemView)
+            itemView.translatesAutoresizingMaskIntoConstraints = false
+        }
+        
+        itemViewOne.backgroundColor = .systemPink
+        itemViewTwo.backgroundColor = .systemOrange
+        
+        let padding: CGFloat = 20
+        let itemHeight: CGFloat = 140
         
         headerView.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
@@ -48,7 +70,21 @@ class UserInfoVC: UIViewController {
             make.trailing.equalToSuperview()
             make.height.equalTo(180)
         }
+        
+        itemViewOne.snp.makeConstraints { make in
+            make.top.equalTo(headerView.snp.bottom).offset(padding)
+            make.leading.equalToSuperview().offset(padding)
+            make.trailing.equalToSuperview().offset(-padding)
+            make.height.equalTo(itemHeight)
+        }
+        
+        itemViewTwo.snp.makeConstraints { make in
+            make.top.equalTo(itemViewOne.snp.bottom).offset(padding)
+            make.horizontalEdges.equalToSuperview().inset(padding)
+            make.height.equalTo(itemHeight)
+        }
     }
+    
     
     func add(childVC: UIViewController, to containerView: UIView) {
         addChild(childVC)
